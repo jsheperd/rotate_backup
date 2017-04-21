@@ -4,7 +4,7 @@ Simple python script for clean backup based on backup ages.
     getBinTops(sourceArray, binNum, clusterFunction)
 
 pushes the items of the sourceArray into binNum bins.
-Each bin can store only one item, that is the newest element wth the biggest item.time value.
+Each bin can store only one item, that is the newest element with the biggest item.time value.
 The bins are identified by the clusterFunction(item) method.
 
 
