@@ -5,6 +5,7 @@ import glob
 import time
 
 class archive:
+    # The archive class represent an archive media with its age related parameters
     def __init__(self, path):
         self.path = path
         self.time = time.gmtime(os.path.getmtime(path))
@@ -17,37 +18,44 @@ class archive:
         self.sec = time.strftime("%Y%m%d%H%M%S", self.time)
 
     def rm(self):
+        # remove the archive from the filesystem
         print "rm %s" % self.path
         os.remove(self.path)
 
 class binStoreNewest:
+    # class to store binNum binStores in younger to older order
+    # each binstore represent an archive, that is the youngest one of its group
     def __init__(self, binNum):
         self.bins = {}
         self.binNum = binNum
 
     def add(self, id, item):
-        if id in self.bins:  # there is a archive for this cluster id
+        # add a new archive to the clustering
+        if id in self.bins:  # there is an archive from this group already
             storedItem = self.bins[id]
-            if storedItem.time < item.time:  # item is newer then the stored one
-                self.bins[id] = item
+            if storedItem.time < item.time:  # act item is newer then the stored one,
+                self.bins[id] = item  # replace that
         else:
-            self.bins[id] = item    # there wasn't archive for this cluster id still now
+            self.bins[id] = item    # there wasn't archive for this group till now
 
         keys = self.bins.keys()
         keys.sort()
-        for id in keys[:-self.binNum]:  # delete the archives out of scope, keep the last binNum ones
+        for id in keys[:-self.binNum]:  # keep the binNum newest ones
             del self.bins[id]
 
     def getPaths(self):
         return [item.path for item in self.bins.values()]
 
 def getBinTops(sourceArray, binNum, clusterFunction):
+    # Create groups from the archives by the clusterFunction
+    # Return with the newest archives from each group for the newset binNum groups
     binStore = binStoreNewest(binNum)
     for item in sourceArray:
         binStore.add(clusterFunction(item), item)
     return binStore.getPaths()
 
 if __name__ == '__main__':
+    # Example usage
     if len(sys.argv) >= 2:
         files = sys.argv[1:]
     else:
